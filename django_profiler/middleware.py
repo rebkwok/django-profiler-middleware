@@ -24,8 +24,8 @@ class ProfilerMiddleware(object):
     def process_request(self, request):
         self.prof = None
         if '__prof__' in request.GET:
-            if (request.REQUEST.get('__prof__stats', False)):
-                stats = StatsView.unpickle(request.REQUEST['__prof__stats'])
+            if (request.GET.get('__prof__stats', False)):
+                stats = StatsView.unpickle(request.GET['__prof__stats'])
                 return stats.display(request)
             else:
                 self.prof = cProfile.Profile()
@@ -91,9 +91,9 @@ class StatsView(object):
 
     def display(self, request):
         sort = [
-            request.REQUEST.get('sort_first', 'time'),
-            request.REQUEST.get('sort_second', 'calls')]
-        format = request.REQUEST.get('format', 'print_stats')
+            request.GET.get('sort_first', 'time'),
+            request.GET.get('sort_second', 'calls')]
+        format = request.GET.get('format', 'print_stats')
 
         sort_first_buttons = RadioButtons('sort_first', sort[0], self.sort_categories)
         sort_second_buttons = RadioButtons('sort_second', sort[1], self.sort_categories)
@@ -105,7 +105,7 @@ class StatsView(object):
 
         output = self.render(sort, format)
 
-        response = HttpResponse(mimetype='text/html; charset=utf-8')
+        response = HttpResponse(content_type='text/html; charset=utf-8')
         response.content = (self.template % {
             'format_buttons': format_buttons,
             'sort_first_buttons': sort_first_buttons,
